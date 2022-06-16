@@ -1,0 +1,1 @@
+"nodo 1": ["nodo 2","nodo 4"],"nodo 2": ["nodo 1","nodo 3","nodo 4"],"nodo 3": ["nodo 2"],"nodo 4": ["nodo 1","nodo 2"]
