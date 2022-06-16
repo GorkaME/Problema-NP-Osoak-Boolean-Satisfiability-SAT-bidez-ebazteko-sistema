@@ -1,8 +1,3 @@
--"__pycache__" flask cachearako erabiltzen duen karpeta da.
-
--"kissat" karpetan, Ubuntu terminalean "Kissat" komandoa erabiltzeko exekutablea eta honen informazio guztia gordeta daukat (Github-etik deskargatzen dena). 
-Instalatu behar da ubuntu terminalean "Kissat" komandoa erabiltzeko (Ikusi Github-en pausuak: https://github.com/arminbiere/kissat.git)
-
 -"NqueensProblema" Nqueens problemaren datu guztiak gordetzeko.
 
 -"HamiltonProblema" Bide Hamiltondarra problemaren datu guztiak gordetzeko.
@@ -13,9 +8,10 @@ Instalatu behar da ubuntu terminalean "Kissat" komandoa erabiltzeko (Ikusi Githu
 
 -"templates" karpeta barruan .HTML fitxategiak daude.
 
-Dokumentu ".pyc" solte horiek aplikazioak behar dituen dokumentuak dira (denak Subsetsum problemarentzako, bere karpetaren barruan ezin dira martxan jarri)
+-"app.py" aplikazio nagusia.
 
--"app.py"
+Dokumentu ".pyc" solteak aplikazioak behar dituen dokumentuak dira (denak Subsetsum problemarentzako, bere karpetaren barruan ezin dira martxan jarri). 
+Instalatu behar da ubuntu terminalean "Kissat" komandoa aplikazioa ondo ibiltzeko (Ikusi Github-en pausuak: https://github.com/arminbiere/kissat.git).
 
 Flask martxan jartzeko hurrengo bertzioak erabili:
      Python 3.8.10
