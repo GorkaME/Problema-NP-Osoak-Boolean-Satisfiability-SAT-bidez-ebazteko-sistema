@@ -1,1 +1,0 @@
-"nodo 1": ["nodo 2","nodo 8"],"nodo 2": ["nodo 1","nodo 7","nodo 3","nodo 5"],"nodo 3": ["nodo 2","nodo 6"],"nodo 4": ["nodo 8","nodo 5"],"nodo 5": ["nodo 4","nodo 2"],"nodo 6": ["nodo 7","nodo 3","nodo 8"],"nodo 7": ["nodo 6","nodo 2"],"nodo 8": ["nodo 6","nodo 1","nodo 4"]
