@@ -1,0 +1,274 @@
+﻿<!DOCTYPE html>
+
+<html>
+    <head>
+        <!-- Required meta tags -->
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+        <title>{% block title %} SatSolver-en bidez problemak ebazteko Web-Tresna {% endblock %}</title>
+        <!-- Scripts -->
+        <script src="https://d3js.org/d3.v3.min.js"></script>
+        <script type="text/javascript">
+            var dimensiones = {{ dim }};
+            var matriz = {{ mtrx }};
+            function showDiv() {
+                if (document.getElementById('chesspng').style.display == "block"){
+                    document.getElementById('chesspng').style.display = "none";
+                    document.getElementById('gridpng').style.display = "block";
+                    document.getElementById('descargaPng').href = document.getElementById('gridpng').src;
+                    document.getElementById('descargaPng').download = dimensiones + "_Queens_Grid.png"
+                }else{
+                    document.getElementById('chesspng').style.display = "block";
+                    document.getElementById('gridpng').style.display = "none";
+                    document.getElementById('descargaPng').href = document.getElementById('chesspng').src;
+                    document.getElementById('descargaPng').download = dimensiones + "_Queens_Chess.png";
+                    document.getElementById('descargaPng').style.display = "block";
+                }
+            }
+            function descargar() {
+                var filename = dimensiones + "_queens.txt";
+                var hasiera = "************************************KISSAT ERANTZUNA************************************\n\n";
+                var kissat = {{ fitx|tojson }};
+                var bukaera = "\n\n\n\n*******************************ZEROKOZ ETA BATEKOZ MATRIZEA*******************************\n\n";
+                if (matriz!=-1){
+                    var matrizea = "[";
+                    for(var x=0; x<matriz.length; x++){
+                        if (x+1<matriz.length){ 
+                            matrizea += "[" + matriz[x] + "],\n"
+                        }else{
+                            matrizea += "[" + matriz[x] + "]]\n"
+                        }
+                    };
+                    var text = hasiera + kissat + bukaera + matrizea;
+                }else{
+                    var text = hasiera + kissat;
+                }     
+                var element = document.createElement('a');
+                element.setAttribute('href', 'data:text/plain;charset=utf-8,' + encodeURIComponent(text));
+                element.setAttribute('download', filename);
+
+                element.style.display = 'none';
+                document.body.appendChild(element);
+
+                element.click();
+
+                document.body.removeChild(element);
+            }
+        </script>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <a class="navbar-brand" href="{{ url_for('index')}}">Hasiera Orria</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+        </nav>
+
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <a style="display: block;" id="aukeratu" class="navbar-brand" href="#0" onclick="showDiv()">Aukeratu Irudi-Emaitzaren Formatua</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+        </nav>
+
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <a id="descargaTxt" class="navbar-brand" href="#0" onclick="descargar()" >Kissat Emaitza + zerokoz/batekoz Matrizea TXT moduan gorde</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+        </nav>
+
+        <nav class="navbar navbar-expand-md navbar-light bg-light">
+            <a style="display: none;" id="descargaPng" class="navbar-brand" href="" download="" >Irudi-Emaitza PNG moduan Gorde</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+        </nav> 
+            
+        <nav class="contenido">
+            <div id="chess" style="display: block; position: absolute; top: 250px; left: 30px;"></div>
+            <script type="text/javascript">
+                var marginTop = 60,
+                    marginLeft = 30,
+                    fieldSize = 30,
+                    boardSize = dimensiones*fieldSize;
+                if (matriz==-1){
+                    document.write("UNSATISFIABLE");
+                    document.getElementById('aukeratu').style.display = "none";
+                }else{
+                    var board =[];
+                    var pieces = {
+                        NONE :          {name: "None",          code: " "}, 
+                        BLACK_QUEEN :   {name: "Black Queen",   code: "\u265B"},
+                    };
+            
+                    for(var i = 0; i < dimensiones*dimensiones; i++) {
+                        board.push({
+                            x: i % dimensiones,
+                            y: Math.floor(i / dimensiones),
+                            piece: pieces.NONE
+                        });
+                    };
+
+                    for(var x=0; x<matriz.length; x++){
+                        for(var y=0; y<matriz[x].length; y++){
+                            if (matriz[x][y]==1){
+                                    board[x*dimensiones + y].piece = pieces.BLACK_QUEEN
+                            }
+                        }
+                    };
+
+                    var svg = d3.select("#chess")
+                            .append("svg")
+                            .attr("width", boardSize + "px")
+                            .attr("height", boardSize + "px")
+                            .attr("id","chessSvg")
+                            .selectAll(".fields")
+                            .data(board)
+                            .enter()
+                            .append("g");
+
+                    svg.append("rect")
+                        .style("class", "fields")
+                        .style("class", "rects")
+                        .attr("x", function (d) {
+                            return d.x*fieldSize;
+                        })
+                        .attr("y", function (d) {
+                            return d.y*fieldSize;
+                        })
+                        .attr("width", fieldSize + "px")
+                        .attr("height", fieldSize + "px")
+                        .style("fill", function (d) {
+                            if ( ((d.x%2 == 0) && (d.y%2 == 0)) ||
+                                ((d.x%2 == 1) && (d.y%2 == 1))    ) 
+                                return "beige";
+                            else
+                                return "tan";
+                        });  
+                
+                    svg.append("text")
+                        .attr("x", function (d) {
+                            return d.x*fieldSize;
+                        })
+                        .attr("y", function (d) {
+                            return d.y*fieldSize;
+                        })
+                        .style("font-size", "30")
+                        .attr("text-anchor", "middle")
+                        .attr("dy", "25px")
+                        .attr("dx", "15px")
+                        .text(function (d) {
+                            return d.piece.code;
+                            })
+                        .append("title")
+                        .text(function(d) {
+                            return d.piece.name;
+                        }); 
+                }
+            </script>
+            <img id="chesspng" style="display: none; position: absolute; top: 250px; left: 30px;"/>
+            <script type="text/javascript">
+                if (matriz!=-1){
+                    var mySVG = document.querySelector('#chessSvg');
+                        tgtImage = document.querySelector('#chesspng'),
+                        can = document.createElement('canvas'),
+                        ctx = can.getContext('2d'),
+                        loader = new Image;
+
+                    loader.width = can.width = tgtImage.width = mySVG.clientWidth;
+                    loader.height = can.height = tgtImage.height = mySVG.clientHeight;
+
+                    loader.onload = function() {
+                        ctx.drawImage(loader, 0, 0, loader.width, loader.height);
+                        tgtImage.src = can.toDataURL();
+                    };
+
+                    var svgAsXML = (new XMLSerializer).serializeToString(mySVG);
+                    loader.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
+                    document.getElementById('chess').style.display = "none";
+                }
+            </script>
+        
+            <div id="grid" style="display: block; position: absolute; top: 250px; left: 30px;"></div>
+            <script type="text/javascript">
+                function gridData() {
+                    var data = new Array();
+	                var xpos = 1;
+	                var ypos = 1;
+                    	
+	                for (var row = 0; row < dimensiones; row++) {
+		                data.push( new Array() );
+		
+		                for (var column = 0; column < dimensiones; column++) {
+			                data[row].push({
+				                x: xpos,
+				                y: ypos,
+				                width: fieldSize2,
+				                height: fieldSize2,
+                                color: matriz[row][column] == 1 ? 'black' : 'white'
+			                })
+			                xpos += fieldSize2;
+		                }
+		                xpos = 1;
+		                ypos += fieldSize2;	
+	                }
+	                return data;
+                }
+                if (matriz!=-1){
+                    var fieldSize2 = 20;
+                    var boardSize2 = dimensiones*fieldSize2+2;
+                    var gridData = gridData();	
+
+                    var grid = d3.select("#grid")
+	                    .append("svg")
+	                    .attr("width",boardSize2 + "px")
+	                    .attr("height",boardSize2 + "px")
+                        .attr("id","gridSvg");
+	
+                    var row = grid.selectAll(".row")
+	                    .data(gridData)
+	                    .enter().append("g")
+	                    .attr("class", "row");
+	
+                    var column = row.selectAll(".square")
+	                    .data(function(d) { return d; })
+	                    .enter().append("rect")
+	                    .attr("class","square")
+	                    .attr("x", function(d) { return d.x; })
+	                    .attr("y", function(d) { return d.y; })
+	                    .attr("width", function(d) { return d.width; })
+	                    .attr("height", function(d) { return d.height; })
+	                    .style("fill", function(d) { return d.color; })
+	                    .style("stroke", "#222");
+                    }
+            </script>
+            <img id="gridpng" style="display: none; position: absolute; top: 250px; left: 30px;"/>
+            <script type="text/javascript">
+                if (matriz!=-1){
+                    var mySVG2 = document.querySelector('#gridSvg');
+                        tgtImage2 = document.querySelector('#gridpng'),
+                        can2 = document.createElement('canvas'),
+                        ctx2 = can2.getContext('2d'),
+                        loader2 = new Image;
+
+                    loader2.width = can2.width = tgtImage2.width = mySVG2.clientWidth;
+                    loader2.height = can2.height = tgtImage2.height = mySVG2.clientHeight;
+
+                    loader2.onload = function() {
+                        ctx2.drawImage(loader2, 0, 0, loader2.width, loader2.height);
+                        tgtImage2.src = can2.toDataURL();
+                    };
+
+                    var svgAsXML2 = (new XMLSerializer).serializeToString(mySVG2);
+                    loader2.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML2);
+                    document.getElementById('grid').style.display = "none";
+                }
+            </script>
+        </nav>
+    </body>
+</html>
