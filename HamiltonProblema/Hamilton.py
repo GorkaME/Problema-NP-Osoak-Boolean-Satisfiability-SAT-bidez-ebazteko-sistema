@@ -33,13 +33,13 @@ def main(graphh):
         f.write(str(graphh))
     sortuCnf(clauses, "HamiltonProblema/cnf/" + filename)
     lortuErantzuna(filename) 
+    fin = time.time()
+    print("Kissat erabilitako denbora:" + str(fin-inicio))
     emaitza, fitxategia = prozesatuEmaitza(matrize,filename) 
     if (emaitza == -1):
         bidea = -1
     else:
         bidea = generate_bidea(emaitza, nodes)
-    fin = time.time()
-    print("Erantzuna prozesatzeko eta pantailaratzeko erabilitako denbora:" + str(fin-inicio))
     return fitxategia, emaitza, matrize, bidea, edges, nodes
     
 def generate_edges(graph):

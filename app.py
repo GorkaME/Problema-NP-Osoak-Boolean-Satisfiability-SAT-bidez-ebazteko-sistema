@@ -17,7 +17,7 @@ def index():
 def nqueens():
     return render_template('nqueens.html')
 
-@app.route('/nqueens', methods=['POST', 'GET'])
+@app.route('/nqueens', methods=['POST'])
 def nqueens_post():
     text = request.form['text'] 
     if text == "" or int(text) == 0:

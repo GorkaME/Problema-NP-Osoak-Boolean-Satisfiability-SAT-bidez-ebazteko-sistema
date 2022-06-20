@@ -146,22 +146,22 @@
     <img id="treemapPng" style="display: none; position: absolute; top: 250px; left: 30px;"/>
             <script type="text/javascript">
                 if (soluzioa!=-1){
-                    var mySVG = document.querySelector('#map');
-                        tgtImage = document.querySelector('#treemapPng'),
-                        can = document.createElement('canvas'),
-                        ctx = can.getContext('2d'),
-                        loader = new Image;
+                    var mySVG3 = document.querySelector('#map');
+                        tgtImage3 = document.querySelector('#treemapPng'),
+                        can3 = document.createElement('canvas'),
+                        ctx3 = can3.getContext('2d'),
+                        loader3 = new Image;
 
-                    loader.width = can.width = tgtImage.width = mySVG.clientWidth;
-                    loader.height = can.height = tgtImage.height = mySVG.clientHeight;
+                    loader3.width = can3.width = tgtImage3.width = mySVG3.clientWidth;
+                    loader3.height = can3.height = tgtImage3.height = mySVG3.clientHeight;
 
-                    loader.onload = function() {
-                        ctx.drawImage(loader, 0, 0, loader.width, loader.height);
-                        tgtImage.src = can.toDataURL();
+                    loader3.onload = function() {
+                        ctx3.drawImage(loader3, 0, 0, loader3.width, loader3.height);
+                        tgtImage3.src = can3.toDataURL();
                     };
 
-                    var svgAsXML = (new XMLSerializer).serializeToString(mySVG);
-                    loader.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
+                    var svgAsXML3 = (new XMLSerializer).serializeToString(mySVG3);
+                    loader3.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML3);
                 }else{
                     document.getElementById('descargaTreemap').style.display = "none";
                 }

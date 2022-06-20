@@ -3,48 +3,60 @@ import gzip
 import shutil
 import subprocess
 import time
+import psutil
 
 def main(text):
     
-    inicio = time.time()
     filename = str(text) + '_queens' 
-    sortuCnf(clausulakSortu(int(text)), "NqueensProblema/cnf/" + filename)     #klausulak sortzeko
-    fin = time.time()
-    print("Clausulak sortzeko erabilitako denbora:" + str(fin-inicio))
-        
+    if not os.path.exists("NqueensProblema/cnf/" + filename + ".gz"):
+        inicio = time.time()
+        documentos = clausulakSortu(int(text), "NqueensProblema/cnf/" + filename)
+        sortuCnf("NqueensProblema/cnf/" + filename, documentos)     #klausulak sortzeko
+        fin = time.time()
+        print("Clausulak sortzeko erabilitako denbora:" + str(fin-inicio))
+    else:
+        print(filename + " fitxategia existitzen da!")
+    
     inicio = time.time()
     lortuErantzuna(filename)                                   #Kissat komandoa terminalean exekutatzeko, eta honek jasotzen duen emaitza gordetzeko
+    fin = time.time()
+    print("Kissat erabilitako denbora:" + str(fin-inicio))
     matrize, fitxategia = prozesatuEmaitza(int(text), filename)              #Emaitza prozesatu zerokoz eta batekoz matrizea lortzeko.
     dimentsio = int(text)
-    fin = time.time()
-    print("Erantzuna prozesatzeko eta pantailaratzeko erabilitako denbora:" + str(fin-inicio))
+    
     return matrize, fitxategia, dimentsio
     
-def clausulakSortu(n):
+def clausulakSortu(n, filename):
+    print("Klausulak sortzen hasi...") 
     clauses=[]
-    clauses.append(["p","cnf",n*n]) #Lehenengo clausula berezia sortzen dugu, baina azken balioa gero gehitzen diogu
+    clause0=[]
+    clause0.append(["p","cnf",n*n]) #Lehenengo clausula berezia sortzen dugu, baina azken balioa gero gehitzen diogu
     filak=[] #Filen klausulak gordeko dituen aldagaia
+    kont = 0
+    documentos = 1
     k=1
     for i in range(n):      #filak sortzeko gure klausuletan
         filak.append([])
         for j in range(n):
             filak[i].append(k)
             k+=1
-        clauses.append(filak[i]) #sortutako fila bakoitza Clasuletan gordetzen dugu
-        
-    indizea=0
-    kombFilak=[] #Filen konbinazio klausulak gordeko dituen aldagaia
+        clauses.append(filak[i].copy()) #sortutako fila bakoitza Clasuletan gordetzen dugu
+            
     for i in range(len(filak)):        #Combinations erabili beharrean, eskuz sortu ditut filen konbinazioak
         for j in range(len(filak[i])): #ez dut lortu egitea itertools combinations erabiliz
             k=j+1                      #fila bakoitzerako, uneko eta hurrengo balioak gordetzen ditut(j eta k)
             while k<len(filak[i]):     #while baten bidez, konbinaketa guztiak lortzen ditut hau eginez: 
+                kombFilak=[] #Filen konbinazio klausulak gordeko dituen aldagaia
                 kombFilak.append([])   #Uneko balioa hurrengo guztiekin konbinatuz, horrela clausuleko balio guztiekin
-                kombFilak[indizea].append(-filak[i][j]) 
-                kombFilak[indizea].append(-filak[i][k])
-                clauses.append(kombFilak[indizea]) #sortutako klausula bakoitza Clauses-en gordetzen dut
+                kombFilak[0].append(-filak[i][j]) 
+                kombFilak[0].append(-filak[i][k])
+                clauses.append(kombFilak[0]) #sortutako klausula bakoitza Clauses-en gordetzen dut
                 k+=1 #hurrengo balioa hartzeko
-                indizea+=1 #beste clausula desberdin bat sortzeko
+                if psutil.virtual_memory().percent>95:
+                    kont, clauses, documentos = clausulakGorde(clauses, kont, filename, documentos)
+                    print("Geratu den memoria: " + str(psutil.virtual_memory().available * 100 / psutil.virtual_memory().total))
                 
+    print("Filak Sortuta!!") 
     #----------------- Zutabeak eta bere konbinazioak -------------------
         
     zutabeak=[]  #Zutabeen klausulak gordeko dituen aldagaia
@@ -56,76 +68,98 @@ def clausulakSortu(n):
             k+=n            #kasu honetan, k=k+n rekin lortzen dugu zutabeen balioak.
         clauses.append(zutabeak[i]) #sortutako zutabe bakoitza Clasuletan gordetzen dugu
          
-    indizea=0
-    kombZutabeak=[] #Zutabeen konbinazio klausulak gordeko dituen aldagaia
+     #Zutabeen konbinazio klausulak gordeko dituen aldagaia
     for i in range(len(zutabeak)):        #Combinations erabili beharrean, eskuz sortu ditut filen konbinazioak
         for j in range(len(zutabeak[i])): 
             k=j+1                      #fila bakoitzerako, uneko eta hurrengo balioak gordetzen ditut(j eta k)
             while k<len(filak[i]):        #while baten bidez, konbinaketa guztiak lortzen ditut hau eginez: 
+                kombZutabeak=[]
                 kombZutabeak.append([])   #Uneko balioa hurrengo guztiekin konbinatuz, horrela clausuleko balio guztiekin
-                kombZutabeak[indizea].append(-zutabeak[i][j]) 
-                kombZutabeak[indizea].append(-zutabeak[i][k])
-                clauses.append(kombZutabeak[indizea]) #sortutako klausula bakoitza Clauses-en gordetzen dut
+                kombZutabeak[0].append(-zutabeak[i][j]) 
+                kombZutabeak[0].append(-zutabeak[i][k])
+                clauses.append(kombZutabeak[0]) #sortutako klausula bakoitza Clauses-en gordetzen dut
                 k+=1 #hurrengo balioa hartzeko
-                indizea+=1 #beste clausula desberdin bat sortzeko
+                if psutil.virtual_memory().percent>95:
+                    kont, clauses, documentos = clausulakGorde(clauses, kont, filename, documentos)
+                    print("Geratu den memoria: " + str(psutil.virtual_memory().available * 100 / psutil.virtual_memory().total))
     
     #----------------- Behe diagonalen konbinazioak -------------------
-    
-    indizea=0
-    beheDiagonal=[]
+    print("Zutabeak Sortuta!!") 
+       
     for i in range(len(filak)): #Filak gordetak ditugunez, erabiliko ditugu
         for j in range(len(filak[i])):
             posI=i                      #uneko i posizioa gordetzen dugu
             posJ=j                      #uneko j posizioa gordetzen dugu
             while posI+1<len(filak[i]) and posJ+1<len(filak[j]): #posI eta posJ hurrengo posizioa duten bitartean
-                beheDiagonal.append([])   #clausula bat sortzen dugu
-                beheDiagonal[indizea].append(-filak[i][j])              #lehenengo posizioa sartzen dugu
-                beheDiagonal[indizea].append(-filak[posI+1][posJ+1])    #Eta hurrengoa ere (gero hurrengoaren hurrengoa etab.. ahal den bitartean)
-                clauses.append(beheDiagonal[indizea]) #sortutako klausula bakoitza Clauses-en gordetzen dut
+                beheDiagonal=[]   #clausula bat sortzen dugu
+                beheDiagonal.append([])
+                beheDiagonal[0].append(-filak[i][j])              #lehenengo posizioa sartzen dugu
+                beheDiagonal[0].append(-filak[posI+1][posJ+1])    #Eta hurrengoa ere (gero hurrengoaren hurrengoa etab.. ahal den bitartean)
+                clauses.append(beheDiagonal[0]) #sortutako klausula bakoitza Clauses-en gordetzen dut
                 posI+=1
                 posJ+=1 #hurrengo balioak hartzen ditugu, n baino txikiagoak badira klausula berri bat sortzeko
-                indizea+=1 #beste clausula desberdin bat sortzeko
-                
+                if psutil.virtual_memory().percent>95:
+                    kont, clauses, documentos = clausulakGorde(clauses, kont, filename, documentos)
+                    print("Geratu den memoria: " + str(psutil.virtual_memory().available * 100 / psutil.virtual_memory().total))
+        
+    print("Behe Diagonala Sortuta!!")   
     #----------------- Goi diagonalen konbinazioak -------------------
     
-    indizea=0
-    goiDiagonal=[]
     for i in range(len(filak)): #Filak gordetak ditugunez, erabiliko ditugu
         for j in range(len(filak[i])):
             posI=i                      #uneko i posizioa gordetzen dugu
             posJ=j                      #uneko j posizioa gordetzen dugu
             while posI+1<len(filak[i]) and posJ-1>=0: #posI  hurrengo posizioa duen, eta posJ aurreko posizioa
-                goiDiagonal.append([])   #clausula bat sortzen dugu
-                goiDiagonal[indizea].append(-filak[i][j])              #lehenengo posizioa sartzen dugu
-                goiDiagonal[indizea].append(-filak[posI+1][posJ-1])    #Eta diagonaleko hurrengoa ere (gero hurrengoaren hurrengoa etab.. ahal den bitartean)
-                clauses.append(goiDiagonal[indizea]) #sortutako klausula bakoitza Clauses-en gordetzen dut
+                goiDiagonal=[]  #clausula bat sortzen dugu
+                goiDiagonal.append([])
+                goiDiagonal[0].append(-filak[i][j])              #lehenengo posizioa sartzen dugu
+                goiDiagonal[0].append(-filak[posI+1][posJ-1])    #Eta diagonaleko hurrengoa ere (gero hurrengoaren hurrengoa etab.. ahal den bitartean)
+                clauses.append(goiDiagonal[0]) #sortutako klausula bakoitza Clauses-en gordetzen dut
                 posI+=1 #uneko posI-ren hurrengo balioa aztertuko dugu
-                posJ-=1 #uneko posJ-ren aurkako balioa aztertuko dugu
-                indizea+=1 #beste clausula desberdin bat sortzeko            
+                posJ-=1 #uneko posJ-ren aurkako balioa aztertuko dugu 
+                if psutil.virtual_memory().percent>95:
+                    kont, clauses, documentos = clausulakGorde(clauses, kont, filename, documentos)
+                    print("Geratu den memoria: " + str(psutil.virtual_memory().available * 100 / psutil.virtual_memory().total))
         
     #----------------- Klausula bakoitzean 0 esleitu, eta lehenengo klausula bukatu -------------------
+    print("Goi Diagonala Sortuta!!") 
     
-    kont=0 #kontagailu bat sortzen dugu klausulak zenbatzeko
-    for i in range(1,len(clauses)): #lehenengo klausuletik aurrera 0 bat esleitzen diegu bakoitzari bukaeran
-        clauses[i].append(0)
-        kont+=1
-    clauses[0].append(kont) #klausula kopurua batzen diogu lehenengo klausulari
+    kont, clauses, documentos = clausulakGorde(clauses, kont, filename, documentos)
+    print("Geratu den memoria: " + str(psutil.virtual_memory().available * 100 / psutil.virtual_memory().total))
     
-    return clauses
+    clause0[0].append(kont)    
+    listToStr = [' '.join([str(elem) for elem in clause]) for clause in clause0]
+    with open(filename + "0.cnf", "w+") as f:
+        for item in listToStr:
+            f.write("%s\n" % item)
+                        
+    print("Klausulak Gordeta!!") 
+    return documentos
 
-def sortuCnf(clauses, filename):
+def clausulakGorde(clauses, kont, filename, documentos):
+    print("Memoriaren 95% erabilita, orain arteko klausulak gordeko dira jarraitu ahal izateko")
+    for k in range(0,len(clauses)): 
+        clauses[k].append(0)
+        kont+=1 
+    listToStr = [' '.join([str(elem) for elem in clause]) for clause in clauses]
+    with open(filename + str(documentos) + ".cnf", "w+") as f:
+        for item in listToStr:
+            f.write("%s\n" % item)
+    print("Klausulen " + str(documentos) + ". cnf fitxategia sortuta")  
+    clauses=[]
+    documentos += 1
+    return kont, clauses, documentos
+
+def sortuCnf(filename, documentos):
        
-    if not os.path.exists(filename + ".gz"):
-        #List to Str
-        listToStr = [' '.join([str(elem) for elem in clause]) for clause in clauses]
-        os.makedirs(os.path.dirname(filename + ".cnf"), exist_ok=True)
-        with open(filename + ".cnf", "w+") as f:
-            for item in listToStr:
-                f.write("%s\n" % item)
-        with open(filename + ".cnf", "rb") as f_in:
-            with gzip.open(filename + ".gz", "wb") as f_out:
+    with gzip.open(filename + ".gz", "wb") as f_out:
+        i=0
+        while(i<documentos):
+            with open(filename + str(i) +".cnf", "rb") as f_in:
                 shutil.copyfileobj(f_in, f_out)
-        os.remove(filename + ".cnf")
+            os.remove(filename + str(i) +".cnf")
+            i += 1
+    print("Klausulak Konprimatutak!!") 
         
 def lortuErantzuna(file):
     if not os.path.exists("NqueensProblema/erantzunak/" + file + ".txt"):

@@ -331,7 +331,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
           .enter()
           .append("foreignObject")
           .attr("x", nodeBCR.left + placePad)
-          .attr("y", nodeBCR.top + placePad -287)
+          .attr("y", nodeBCR.top + placePad -387)
           .attr("height", 2*useHW)
           .attr("width", useHW)
           .append("xhtml:p")
@@ -430,7 +430,7 @@ document.onload = (function(d3, saveAs, Blob, undefined){
     } else if (state.graphMouseDown && d3.event.shiftKey){
       // clicked not dragged from svg
       var xycoords = d3.mouse(thisGraph.svgG.node()),
-          d = {id: thisGraph.idct++, title: "nodo "+ nodoberri, x: xycoords[0], y: xycoords[1]};
+          d = {id: thisGraph.idct++, title: ""+ nodoberri, x: xycoords[0], y: xycoords[1]};
       nodoberri++;
       thisGraph.nodes.push(d);
       thisGraph.updateGraph();
@@ -587,8 +587,8 @@ document.onload = (function(d3, saveAs, Blob, undefined){
       yLoc = 100;
 
   // initial node data
-  var nodes = [{title: "nodo 1", id: 0, x: xLoc, y: yLoc},
-               {title: "nodo 2", id: 1, x: xLoc, y: yLoc + 200}];
+  var nodes = [{title: "1", id: 0, x: xLoc, y: yLoc},
+               {title: "2", id: 1, x: xLoc, y: yLoc + 200}];
   var edges = [{source: nodes[1], target: nodes[0]}];
 
 

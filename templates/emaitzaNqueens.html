@@ -16,17 +16,33 @@
             var dimensiones = {{ dim }};
             var matriz = {{ mtrx }};
             function showDiv() {
-                if (document.getElementById('chesspng').style.display == "block"){
-                    document.getElementById('chesspng').style.display = "none";
-                    document.getElementById('gridpng').style.display = "block";
-                    document.getElementById('descargaPng').href = document.getElementById('gridpng').src;
-                    document.getElementById('descargaPng').download = dimensiones + "_Queens_Grid.png"
+                if (dimensiones<500){
+                    if (document.getElementById('chesspng').style.display == "block"){
+                        document.getElementById('chesspng').style.display = "none";
+                        document.getElementById('gridpng').style.display = "block";
+                        document.getElementById('descargaPng').href = document.getElementById('gridpng').src;
+                        document.getElementById('descargaPng').download = dimensiones + "_Queens_Grid.png"
+                    }else{
+                        document.getElementById('chesspng').style.display = "block";
+                        document.getElementById('gridpng').style.display = "none";
+                        document.getElementById('descargaPng').href = document.getElementById('chesspng').src;
+                        document.getElementById('descargaPng').download = dimensiones + "_Queens_Chess.png";
+                        document.getElementById('descargaPng').style.display = "block";
+                    }
                 }else{
-                    document.getElementById('chesspng').style.display = "block";
-                    document.getElementById('gridpng').style.display = "none";
-                    document.getElementById('descargaPng').href = document.getElementById('chesspng').src;
-                    document.getElementById('descargaPng').download = dimensiones + "_Queens_Chess.png";
-                    document.getElementById('descargaPng').style.display = "block";
+                    if (document.getElementById('grid').style.display == "none"){
+                        document.getElementById('chess').style.display = "none";
+                        document.getElementById('grid').style.display = "block";
+                        document.getElementById('descargaPng').href = url2;
+                        var nombre = dimensiones + "_queens_grid";
+                        document.getElementById('descargaPng').download = nombre + "_Irudia.svg"
+                    }else{
+                        document.getElementById('chess').style.display = "block";
+                        document.getElementById('grid').style.display = "none";
+                        document.getElementById('descargaPng').href = url;
+                        var nombre = dimensiones + "_queens_chess";
+                        document.getElementById('descargaPng').download = nombre + "_Irudia.svg"
+                    }
                 }
             }
             function descargar() {
@@ -88,6 +104,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
         </nav> 
+        <h5 id="mensaje" style="display: none;">N sarrera tamaina handiegia da, beraz ezin da PNG irudia sortu (Eskura dago zerokoz eta batekoz matrizea, edo  SVG formatuan deskargatzeko aukera)</h5>
             
         <nav class="contenido">
             <div id="chess" style="display: block; position: absolute; top: 250px; left: 30px;"></div>
@@ -174,23 +191,51 @@
             <img id="chesspng" style="display: none; position: absolute; top: 250px; left: 30px;"/>
             <script type="text/javascript">
                 if (matriz!=-1){
-                    var mySVG = document.querySelector('#chessSvg');
-                        tgtImage = document.querySelector('#chesspng'),
-                        can = document.createElement('canvas'),
-                        ctx = can.getContext('2d'),
-                        loader = new Image;
+                    if (dimensiones<500){
+                        var mySVG = document.querySelector('#chessSvg');
+                            tgtImage = document.querySelector('#chesspng'),
+                            can = document.createElement('canvas'),
+                            ctx = can.getContext('2d'),
+                            loader = new Image;
 
-                    loader.width = can.width = tgtImage.width = mySVG.clientWidth;
-                    loader.height = can.height = tgtImage.height = mySVG.clientHeight;
+                        loader.width = can.width = tgtImage.width = mySVG.clientWidth;
+                        loader.height = can.height = tgtImage.height = mySVG.clientHeight;
 
-                    loader.onload = function() {
-                        ctx.drawImage(loader, 0, 0, loader.width, loader.height);
-                        tgtImage.src = can.toDataURL();
-                    };
+                        loader.onload = function() {
+                            ctx.drawImage(loader, 0, 0, loader.width, loader.height);
+                            tgtImage.src = can.toDataURL();
+                        };
 
-                    var svgAsXML = (new XMLSerializer).serializeToString(mySVG);
-                    loader.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
-                    document.getElementById('chess').style.display = "none";
+                        var svgAsXML = (new XMLSerializer).serializeToString(mySVG);
+                        loader.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
+                        document.getElementById('chess').style.display = "none";
+                    }else{
+                        //get svg element.
+                        var svg = document.getElementById('chessSvg');
+
+                        //get svg source.
+                        var serializer = new XMLSerializer();
+                        var source = serializer.serializeToString(svg);
+
+                        //add name spaces.
+                        if(!source.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+                            source = source.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+                        }
+                        if(!source.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+                            source = source.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+                        }
+
+                        //add xml declaration
+                        source = '<?xml version="1.0" standalone="no"?>\r\n' + source;
+
+                        //convert svg source to URI data scheme.
+                        var url = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source);
+
+                        //set url value to a element's href attribute.
+                        document.getElementById('descargaPng').href = url;
+                        var nombre = dimensiones + "_queens_chess";
+                        document.getElementById('descargaPng').download = nombre + "_Irudia.svg"
+                    }
                 }
             </script>
         
@@ -219,7 +264,7 @@
 	                }
 	                return data;
                 }
-                if (matriz!=-1){
+                if (matriz!=-1){ 
                     var fieldSize2 = 20;
                     var boardSize2 = dimensiones*fieldSize2+2;
                     var gridData = gridData();	
@@ -250,23 +295,52 @@
             <img id="gridpng" style="display: none; position: absolute; top: 250px; left: 30px;"/>
             <script type="text/javascript">
                 if (matriz!=-1){
-                    var mySVG2 = document.querySelector('#gridSvg');
-                        tgtImage2 = document.querySelector('#gridpng'),
-                        can2 = document.createElement('canvas'),
-                        ctx2 = can2.getContext('2d'),
-                        loader2 = new Image;
+                    if (dimensiones<500){
+                        var mySVG2 = document.querySelector('#gridSvg');
+                            tgtImage2 = document.querySelector('#gridpng'),
+                            can2 = document.createElement('canvas'),
+                            ctx2 = can2.getContext('2d'),
+                            loader2 = new Image;
 
-                    loader2.width = can2.width = tgtImage2.width = mySVG2.clientWidth;
-                    loader2.height = can2.height = tgtImage2.height = mySVG2.clientHeight;
+                        loader2.width = can2.width = tgtImage2.width = mySVG2.clientWidth;
+                        loader2.height = can2.height = tgtImage2.height = mySVG2.clientHeight;
 
-                    loader2.onload = function() {
-                        ctx2.drawImage(loader2, 0, 0, loader2.width, loader2.height);
-                        tgtImage2.src = can2.toDataURL();
-                    };
+                        loader2.onload = function() {
+                            ctx2.drawImage(loader2, 0, 0, loader2.width, loader2.height);
+                            tgtImage2.src = can2.toDataURL();
+                        };
 
-                    var svgAsXML2 = (new XMLSerializer).serializeToString(mySVG2);
-                    loader2.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML2);
-                    document.getElementById('grid').style.display = "none";
+                        var svgAsXML2 = (new XMLSerializer).serializeToString(mySVG2);
+                        loader2.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML2);
+                    }else{
+                        var svg2 = document.getElementById('gridSvg');
+
+                        //get svg source.
+                        var serializer2 = new XMLSerializer();
+                        var source2 = serializer2.serializeToString(svg2);
+
+                        //add name spaces.
+                        if(!source2.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+                            source2 = source2.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+                        }
+                        if(!source2.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+                            source2 = source2.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+                        }
+
+                        //add xml declaration
+                        source2 = '<?xml version="1.0" standalone="no"?>\r\n' + source2;
+
+                        //convert svg source to URI data scheme.
+                        var url2 = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source2);
+
+                        //set url value to a element's href attribute.
+                    }
+                }
+                document.getElementById('grid').style.display = "none";
+                if (dimensiones>500){
+                    document.getElementById('mensaje').style.display = "block";
+                    descargaPng.innerText = "Irudi-Emaitza SVG moduan Gorde"
+                    document.getElementById('descargaPng').style.display = "block";
                 }
             </script>
         </nav>

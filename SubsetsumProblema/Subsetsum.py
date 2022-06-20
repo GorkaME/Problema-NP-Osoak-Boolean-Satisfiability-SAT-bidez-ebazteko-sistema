@@ -18,6 +18,8 @@ def main(lista, suma):
     inicio = time.time()
     win_cmd = "kissat SubsetsumProblema/cnf/" + filename + ".gz >> SubsetsumProblema/erantzunak/" + filename + ".txt" 
     subprocess.Popen(win_cmd, shell=True)
+    fin = time.time()
+    print("Kissat erabilitako denbora:" + str(fin-inicio))
     while not os.path.exists("SubsetsumProblema/erantzunak/" + filename + ".txt"):
         time.sleep(1)
     fitxategia = []
@@ -59,8 +61,6 @@ def main(lista, suma):
             bat = 0
             zenbakiz=0
         f.close()
-    fin = time.time()
-    print("Erantzuna prozesatzeko eta pantailaratzeko erabilitako denbora:" + str(fin-inicio))
     return fitxategia, bat, indices, zenbakiz
         
 def sortuCnf(clauses, filename):
