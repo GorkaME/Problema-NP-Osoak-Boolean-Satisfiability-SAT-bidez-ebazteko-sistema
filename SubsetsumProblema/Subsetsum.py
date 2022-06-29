@@ -4,7 +4,6 @@ import subprocess
 import gzip
 import shutil
 from SubsetsumProblema import SubsetSum_to_SATOptimo3
-import pandas as pd
 import csv
 
 def main(lista, suma):

@@ -27,7 +27,6 @@
                         document.getElementById('gridpng').style.display = "none";
                         document.getElementById('descargaPng').href = document.getElementById('chesspng').src;
                         document.getElementById('descargaPng').download = dimensiones + "_Queens_Chess.png";
-                        document.getElementById('descargaPng').style.display = "block";
                     }
                 }else{
                     if (document.getElementById('grid').style.display == "none"){
@@ -84,8 +83,8 @@
             </button>
         </nav>
 
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
-            <a style="display: block;" id="aukeratu" class="navbar-brand" href="#0" onclick="showDiv()">Aukeratu Irudi-Emaitzaren Formatua</a>
+        <nav style="display: block;" id="aukeratu" class="navbar navbar-expand-md navbar-light bg-light">
+            <a class="navbar-brand" href="#0" onclick="showDiv()">Aukeratu Irudi-Emaitzaren Formatua</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -98,8 +97,8 @@
                 </button>
         </nav>
 
-        <nav class="navbar navbar-expand-md navbar-light bg-light">
-            <a style="display: none;" id="descargaPng" class="navbar-brand" href="" download="" >Irudi-Emaitza PNG moduan Gorde</a>
+        <nav style="display: block;" id="descargarrr" class="navbar navbar-expand-md navbar-light bg-light">
+            <a style="display: block;" id="descargaPng" class="navbar-brand" href="" download="" >Irudi-Emaitza PNG moduan Gorde</a>
                 <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
@@ -116,6 +115,7 @@
                 if (matriz==-1){
                     document.write("UNSATISFIABLE");
                     document.getElementById('aukeratu').style.display = "none";
+                    document.getElementById('descargarrr').style.display = "none";
                 }else{
                     var board =[];
                     var pieces = {
@@ -292,7 +292,7 @@
 	                    .style("stroke", "#222");
                     }
             </script>
-            <img id="gridpng" style="display: none; position: absolute; top: 250px; left: 30px;"/>
+            <img id="gridpng" style="display: block; position: absolute; top: 250px; left: 30px;"/>
             <script type="text/javascript">
                 if (matriz!=-1){
                     if (dimensiones<500){
@@ -312,6 +312,10 @@
 
                         var svgAsXML2 = (new XMLSerializer).serializeToString(mySVG2);
                         loader2.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML2);
+                        tgtImage2.onload = function() {
+                            document.getElementById('descargaPng').href = tgtImage2.src;
+                            document.getElementById('descargaPng').download = dimensiones + "_Queens_Grid.png"
+                        };
                     }else{
                         var svg2 = document.getElementById('gridSvg');
 

@@ -6,36 +6,6 @@
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://d3js.org/d3.v3.min.js"></script>
     <title>{% block title %} SatSolver-en bidez problemak ebazteko Web-Tresna {% endblock %}</title>
-    <style>
-        .link {
-            fill: none;
-            stroke: #666;
-            stroke-width: 3px;
-        }
-
-        #licensing {
-            fill: red;
-        }
-
-        .link.licensing {
-            stroke: red;
-        }
-
-        .link.resolved {
-            stroke-dasharray: 0,2 1;
-        }
-
-        circle {
-            fill: #ccc;
-            stroke: #333;
-            stroke-width: 1.5px;
-        }
-
-        text {
-            font: 20px sans-serif;
-            pointer-events: none;
-        }
-    </style>
     <script type="text/javascript">
         const nodoak = {{ nodes|tojson }};
         const ertzak = {{ edges|tojson }};
@@ -93,14 +63,74 @@
 
             document.body.removeChild(element);
         }
-        function descargaPrestatu(){
-            document.getElementById('descargaGrafo').href = document.getElementById('grafo').src;
-            var filename = nodoak.length + "_nodo_" + ertzak.length / 2 + "_ertz.txt";
-            document.getElementById('descargaGrafo').download = filename + "_Irudia.png"
+        
+        function descargatu(){
+        /*  -------SVG MODUAN DESKARGATU NAHI BADA -------
+            var svg3 = document.getElementById('graph');
+
+            //get svg source.
+            var serializer2 = new XMLSerializer();
+            var source2 = serializer2.serializeToString(svg3);
+
+            //add name spaces.
+            if(!source2.match(/^<svg[^>]+xmlns="http\:\/\/www\.w3\.org\/2000\/svg"/)){
+                source2 = source2.replace(/^<svg/, '<svg xmlns="http://www.w3.org/2000/svg"');
+            }
+            if(!source2.match(/^<svg[^>]+"http\:\/\/www\.w3\.org\/1999\/xlink"/)){
+                source2 = source2.replace(/^<svg/, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+            }
+
+            //add xml declaration
+            source2 = '<?xml version="1.0" standalone="no"?>\r\n' + source2;
+
+            //convert svg source to URI data scheme.
+            var url2 = "data:image/svg+xml;charset=utf-8,"+encodeURIComponent(source2);
+            var nombre = nodoak.length + "_nodo_" + ertzak.length / 2 + "_ertz_Irudia.svg";
+            var element = document.createElement('a');
+            element.setAttribute('href', url2);
+            element.setAttribute('download', nombre);
+
+            element.style.display = 'none';
+            document.body.appendChild(element);
+
+            element.click();
+
+            document.body.removeChild(element);
+            */            
+            var mySVG2 = document.querySelector('#graph');
+                tgtImage2 = document.querySelector('#grafodescarga'),
+                can2 = document.createElement('canvas'),
+                ctx2 = can2.getContext('2d'),
+                loader2 = new Image;
+
+            loader2.width = can2.width = tgtImage2.width = mySVG2.clientWidth;
+            loader2.height = can2.height = tgtImage2.height = mySVG2.clientHeight;
+
+            loader2.onload = function() {
+                ctx2.drawImage(loader2, 0, 0, loader2.width, loader2.height);
+                tgtImage2.src = can2.toDataURL();
+            };
+
+            var svgAsXML2 = (new XMLSerializer).serializeToString(mySVG2);
+            loader2.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML2);
+
+            tgtImage2.onload = function() {
+                var nombre = nodoak.length + "_nodo_" + ertzak.length / 2 + "_ertz_Irudia.png";
+                var element = document.createElement('a');
+                element.setAttribute('href', tgtImage2.src);
+                element.setAttribute('download', nombre);
+                element.style.display = 'none';
+                document.body.appendChild(element);
+
+                element.click();
+
+                document.body.removeChild(element);
+            };
+       
         }
     </script>
   </head>
-  <body onload="descargaPrestatu()">
+  <body>
     <nav class="navbar navbar-expand-md navbar-light bg-light">
         <a class="navbar-brand" href="{{ url_for('index')}}">Hasiera Orria</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -113,8 +143,8 @@
                 <span class="navbar-toggler-icon"></span>
             </button>
     </nav>
-    <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <a style="display: block;" id="descargaGrafo" class="navbar-brand" href="" download="" >Grafoa bide hamiltondarrarekin PNG moduan gorde</a>
+    <nav style="display: block;" id="descargarrr" class="navbar navbar-expand-md navbar-light bg-light">
+        <a style="display: block;" id="descargaGrafo" class="navbar-brand" href="#0" onclick="descargatu()" >Grafoa bide hamiltondarrarekin PNG moduan gorde</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -136,9 +166,33 @@
           link.target = nodes[link.target] || (nodes[link.target] = {name: link.target});
         });
 
-        var width = 2000,
-            height = 1500;
+        var width = 1500,
+            height = 1200;
 
+        var cssText = '.link {' +
+            'fill: none;' +
+            'stroke: #666;' +
+            'stroke-width: 3px;' +
+        '}' +
+        '#licensing {' +
+            'fill: red;' +
+        '}' +
+        '.link.licensing {' +
+            'stroke: red;' +
+        '}' +
+        '.link.resolved {' +
+            'stroke-dasharray: 0,2 1;' +
+        '}' +
+        'circle {' +
+            'fill: #ccc;' +
+            'stroke: #333;' +
+            'stroke-width: 1.5px;' +
+        '}' +
+        'text {' +
+            'font: 20px sans-serif;' +
+            'pointer-events: none;' +
+        '}' 
+        
         var force = d3.layout.force()
             .nodes(d3.values(nodes))
             .links(links)
@@ -151,6 +205,8 @@
         var svg = d3.select("body").append("svg")
             .attr("width", width)
             .attr("height", height);
+
+        svg.append("style").text(cssText)
 
         // Per-type markers, as they don't inherit styles.
         svg.append("defs").selectAll("marker")
@@ -246,6 +302,8 @@
                 .attr("width", width)
                 .attr("height", height);
 
+            svg2.append("style").text(cssText)
+
             // Per-type markers, as they don't inherit styles.
             svg2.append("defs").selectAll("marker")
                 .data(["suit", "licensing", "resolved"])
@@ -296,34 +354,13 @@
             function transform(d) {
               return "translate(" + d.x + "," + d.y + ")";
             }
+
         }else{
             document.getElementById('ondo').style.display = "none";
             document.getElementById('gaizki').style.display = "block";
+            document.getElementById('descargarrr').style.display = "none";
         }
-
     </script>
-    <img id="grafo" style="display: none; position: absolute; top: 250px; left: 30px;"/>
-            <script type="text/javascript">
-                if (emaitza!=-1){
-                    var mySVG = document.querySelector('#graph');
-                        tgtImage = document.querySelector('#grafo'),
-                        can = document.createElement('canvas'),
-                        ctx = can.getContext('2d'),
-                        loader = new Image;
-
-                    loader.width = can.width = tgtImage.width = mySVG.clientWidth;
-                    loader.height = can.height = tgtImage.height = mySVG.clientHeight;
-
-                    loader.onload = function() {
-                        ctx.drawImage(loader, 0, 0, loader.width, loader.height);
-                        tgtImage.src = can.toDataURL();
-                    };
-
-                    var svgAsXML = (new XMLSerializer).serializeToString(mySVG);
-                    loader.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML);
-                }else{
-                    document.getElementById('descargaGrafo').style.display = "none";
-                }
-            </script>
+    <img id="grafodescarga" style="display: none; position: absolute; top: 250px; left: 30px;"/>
     </body>
 </html>

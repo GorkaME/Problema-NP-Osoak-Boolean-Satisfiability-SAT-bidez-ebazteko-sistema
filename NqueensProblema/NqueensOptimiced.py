@@ -4,19 +4,33 @@ import shutil
 import subprocess
 import time
 import psutil
+import pandas as pd
 
 def main(text):
-    
+    gertuena = text
     filename = str(text) + '_queens' 
-    if not os.path.exists("NqueensProblema/cnf/" + filename + ".gz"):
+    i = 0
+    if not os.path.exists("cnf/" + filename + ".gz"):
         inicio = time.time()
-        documentos = clausulakSortu(int(text), "NqueensProblema/cnf/" + filename)
-        sortuCnf("NqueensProblema/cnf/" + filename, documentos)     #klausulak sortzeko
+        while(i<100):                                 #100 diferentzia maximoarekin gertuen duen fitxategia bilatu
+            if os.path.exists("cnf/" + str(gertuena+i) + "_queens.gz"):
+                gertuena += i
+                break
+            if os.path.exists("cnf/" + str(gertuena-i) + "_queens.gz"):
+                gertuena -= i
+                break
+            i +=1
+        if gertuena>text:
+            clausulakKendu(int(text), "cnf/" + filename, gertuena)
+        if gertuena<text:
+            clausulakSortu(int(text), "cnf/" + filename)
+        documentos = clausulakSortu(int(text), "cnf/" + filename)
+        #sortuCnf("cnf/" + filename, documentos)     #klausulak sortzeko
         fin = time.time()
         print("Clausulak sortzeko erabilitako denbora:" + str(fin-inicio))
     else:
         print(filename + " fitxategia existitzen da!")
-    
+    '''
     inicio = time.time()
     lortuErantzuna(filename)                                   #Kissat komandoa terminalean exekutatzeko, eta honek jasotzen duen emaitza gordetzeko
     fin = time.time()
@@ -25,7 +39,42 @@ def main(text):
     dimentsio = int(text)
     
     return matrize, fitxategia, dimentsio
-    
+    '''
+def clausulakKendu(n, filename, gertuena):
+    soberan = []
+    for x in range(n+1, gertuena+1):
+        soberan.append(str(x))
+    print(soberan[0])
+    clauses=[]
+    clause0=[]
+    clause0.append(["p","cnf",n*n]) #Lehenengo clausula berezia sortzen dugu, baina azken balioa gero gehitzen diogu
+    filak=[] #Filen klausulak gordeko dituen aldagaia
+    kont = 0
+    documentos = 1
+    k=1
+    for i in range(n):      #filak sortzeko gure klausuletan
+        filak.append([])
+        for j in range(n):
+            filak[i].append(k)
+            k+=1
+        clauses.append(filak[i].copy()) #sortutako fila bakoitza Clasuletan gordetzen dugu
+    kont, clauses, documentos = clausulakGorde(clauses, kont, filename, documentos)
+    with open(filename + ".cnf", "w") as ffff:
+        with gzip.open("cnf/" + str(gertuena) + '_queens' + ".gz",'rt') as f:
+            for line in f:
+                if "-1" in line:
+                    break
+            ffff.write(line)
+            dago = False
+            for line in f:
+                for item in soberan:
+                    if not item in line:
+                        dago = True
+                    if dago:
+                        ffff.write(line)
+                        dago = False
+                        
+                        
 def clausulakSortu(n, filename):
     print("Klausulak sortzen hasi...") 
     clauses=[]
@@ -205,4 +254,6 @@ def prozesatuEmaitza(num, file):
         f.close()
         
     return emaitza, fitxategia
+
+main(50)
  

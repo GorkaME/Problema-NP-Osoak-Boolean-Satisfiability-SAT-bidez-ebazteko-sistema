@@ -40,14 +40,22 @@
 
             document.body.removeChild(element);
         }
-        function descargaPrestatu(){
-            document.getElementById('descargaTreemap').href = document.getElementById('treemapPng').src;
-            var filename = batukaria + "_batu.txt";
-            document.getElementById('descargaTreemap').download = filename + "_Irudia.png"
+        function descargatu(){
+            var canvas = document.getElementById("canvas");
+            // Convert the canvas to data
+            var image = canvas.toDataURL();
+            // Create a link
+            var aDownloadLink = document.createElement('a');
+            // Add the name of the file to the link
+            aDownloadLink.download = batukaria + "_batu.png";
+            // Attach the data to the link
+            aDownloadLink.href = image;
+            // Get the code to click the download link
+            aDownloadLink.click();
         }
     </script>
   </head>
-  <body onload="descargaPrestatu()">
+  <body>
     <nav class="navbar navbar-expand-md navbar-light bg-light">
         <a class="navbar-brand" href="{{ url_for('index')}}">Hasiera Orria</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -61,7 +69,7 @@
         </button>
     </nav>
     <nav class="navbar navbar-expand-md navbar-light bg-light">
-        <a style="display: block;" id="descargaTreemap" class="navbar-brand" href="" download="" >Emaitza PNG moduan gorde</a>
+        <a style="display: block;" id="descargaTreemap" class="navbar-brand" href="#0" onclick="descargatu()">Emaitza PNG moduan gorde</a>
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
@@ -71,14 +79,17 @@
     <h6 id="solZenbSeguida"></h6>
     <h6 id="lortzekoBat"></h6>
     <h6 id="erantzunBat"></h6>
-    <h6 id="karga" >Ctrl + F5 egin irudia ez bada ondo kargatu:</h6>
-    <div id="my_dataviz"></div>
+    <h6 id="karga" style="display: none;">Ctrl + F5 egin irudia ez bada ondo kargatu:</h6>
+    <canvas id="canvas" width="600" height ="600"></canvas><br/>
+    <img style="display: none;"id="treemapPng"/><br/>
+    <div id="my_dataviz" style="display: none;"></div>
     <script type="text/javascript">
         zenbSeguida.innerText = "Sortu den zenbakien segida: [" + segida + "]";
         lortzekoBat.innerText = "Lortu nahi den batukaria: " + batukaria;
         if (soluzioa==-1){
             erantzunBat.innerText = "Ezin da batuketa sortu: UNSATISFIABLE";
             karga.innerText = "";
+            document.getElementById('descargaTreemap').style.display = "none";
         }else{
             solZenbSeguida.innerText = "Emaitzaren soluzio segida: [" + lista + "]";
             erantzunBat.innerText = "Lortu den batuketa: " + batuketa;
@@ -139,32 +150,29 @@
                   .text(function(d){ return d.data.name})
                   .attr("font-size", "15px")
                   .attr("fill", "white")
+
+                var img = document.querySelector('img');
+                var canvas = document.querySelector('canvas');
+
+                // get svg data
+                var mysvg = d3.select("svg");
+                var xml = new XMLSerializer().serializeToString(mysvg.node());
+
+                // make it base64
+                var svg64 = btoa(xml);
+                var b64Start = 'data:image/svg+xml;base64,';
+
+                // prepend a "header"
+                var image64 = b64Start + svg64;
+                img.onload = function() {
+                    // draw the image onto the canvas
+                    canvas.getContext('2d').drawImage(img, 0, 0);
+                }
+                img.src = image64;
+                document.getElementById('descargaTreemap').href = image64;
             })
         }
         
     </script>
-    <img id="treemapPng" style="display: none; position: absolute; top: 250px; left: 30px;"/>
-            <script type="text/javascript">
-                if (soluzioa!=-1){
-                    var mySVG3 = document.querySelector('#map');
-                        tgtImage3 = document.querySelector('#treemapPng'),
-                        can3 = document.createElement('canvas'),
-                        ctx3 = can3.getContext('2d'),
-                        loader3 = new Image;
-
-                    loader3.width = can3.width = tgtImage3.width = mySVG3.clientWidth;
-                    loader3.height = can3.height = tgtImage3.height = mySVG3.clientHeight;
-
-                    loader3.onload = function() {
-                        ctx3.drawImage(loader3, 0, 0, loader3.width, loader3.height);
-                        tgtImage3.src = can3.toDataURL();
-                    };
-
-                    var svgAsXML3 = (new XMLSerializer).serializeToString(mySVG3);
-                    loader3.src = 'data:image/svg+xml,' + encodeURIComponent(svgAsXML3);
-                }else{
-                    document.getElementById('descargaTreemap').style.display = "none";
-                }
-            </script>
     </body>
 </html>

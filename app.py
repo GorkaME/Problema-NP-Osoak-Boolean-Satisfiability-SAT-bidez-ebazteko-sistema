@@ -1,8 +1,9 @@
-from flask import Flask, request, render_template
+from flask import Flask, request, render_template, send_from_directory
 #from flask_caching import Cache
-from NqueensProblema import Nqueens 
+from NqueensProblema import Nqueens #, NqueensOptimiced
 from HamiltonProblema import Hamilton
 from SubsetsumProblema import Subsetsum
+import os
 
 #cache = Cache(config={'CACHE_TYPE': 'null'})
 app = Flask(__name__)
@@ -23,6 +24,7 @@ def nqueens_post():
     if text == "" or int(text) == 0:
         return "Zenbaki bat 0 baino handiagoa aukeratu behar da."
     matrize, fitxategia, dimentsio = Nqueens.main(text)   
+    #matrize, fitxategia, dimentsio = NqueensOptimiced.main(text)   
     return render_template('emaitzaNqueens.html', mtrx=matrize, fitx=fitxategia, dim=dimentsio)
 
 @app.route('/hamiltondarra')
@@ -56,3 +58,7 @@ def subsetsum_post():
         return "Batura bilatzeko zenbaki bat idatzi behar duzu"    
     fitxategia, batuketa, indices, zenbakiz = Subsetsum.main(lista, suma)
     return render_template('emaitzaSubsetsum.html', fitx=fitxategia, bat=batuketa, ind=indices, seg=amalista, bilatu=suma, lista=zenbakiz)
+
+@app.route('/favicon.ico') 
+def favicon(): 
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'favicon.ico', mimetype='image/vnd.microsoft.icon')
